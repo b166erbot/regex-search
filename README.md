@@ -9,15 +9,14 @@
 
 ###### Usagem:
 
-  * $ regex_search --help
-      * regex_search [expressão regular] [texto/[local]arquivo]
-  * $ regex_search 'expressão com espaços' 'arquivo com espaços.txt'
-      * irá procurar a expressão dentro do arquivo
-  * $ regex_search -r '(oi)|(ola)' .
-      * irá procurar pela expressão em todas as subpastas da pasta inserida
-  * $ regex_search 'regex' `comando shell que retornará um texto`
-      * é possível usar o regex_search com comandos shell menos com o pipe.
-      * culpem o python por isso.
+  * `$ regex_search.py --help`
+      * regex_search.py [expressão regular] [texto/[local]arquivo]
+  * `$ regex_search.py 'expressão com espaços' 'arquivo com espaços.txt'`
+      * irá procurar pela expressão dentro do arquivo
+  * `$ regex_search.py -r '(oi)|(ola)' .`
+      * irá procurar pela expressão `'(oi)|(ola)'` em todas as subpastas da pasta `.` inserida
+  * $ regex_search.py 'regex' \`comando shell que retornará um texto\`
+      * é possível usar o regex_search com comandos shell, menos com o pipe. culpem o python por isso.
 
 ###### Todo:
   - [x] adicionar uma função para ler todos os arquivos das pastas recursivamente.
