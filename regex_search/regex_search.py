@@ -2,21 +2,21 @@ from os.path import isdir, isfile, exists, join
 from os import walk
 from re import M, search, sub
 from typing import Union, Generator, Tuple
-from itertools import cycle, dropwhile
+# from types import GeneratorType as Gen
+from itertools import cycle, dropwhile, chain
 
 from click import STRING, argument, command, option, echo
 from colored import attr, fg
 
 
-ajuda_opcao_recursiva = ('Vasculha por todos os arquivos contidos'
+ajuda_opcao = ('Vasculha por todos os arquivos contidos'
                          ' dentro da [local/]pasta passada.')
 
 
 @command()
 @argument('regex', type=STRING)
 @argument('texto_arquivo', type=STRING)
-@option('-r', '--recursivo', default=False,
-        is_flag=True, help=ajuda_opcao_recursiva)
+@option('-r', '--recursivo', default=False, is_flag=True, help=ajuda_opcao)
 def main(regex: str, texto_arquivo: str, recursivo: bool):
     """
     Procure por padrões regex em um texto/arquivo.
@@ -24,38 +24,36 @@ def main(regex: str, texto_arquivo: str, recursivo: bool):
     Usagem: regex_search [REGEX] [TEXTO | [LOCAL]ARQUIVO]
     """
 
-    # muitas condições, refatorar.
+    texto_arquivo = texto_arquivo.strip()
     if len(texto_arquivo) <= 180 and exists(texto_arquivo):
         if isfile(texto_arquivo):
-            for linha in procurarNoArquivo(regex, texto_arquivo):
-                echo(linha.strip())
+            gerador = procurarNoArquivo(regex, texto_arquivo)
         elif recursivo and isdir(texto_arquivo):
-            gerador = (join(w, z) for w, x, y in walk(texto_arquivo)
-                       for z in y)
-            gerador = (procurarNoArquivo(regex, x) for x in gerador)
-            for arquivo in gerador:
-                for linha in arquivo:
-                    echo(linha.strip())
+            gerador = (join(w, z) for w, x, y in walk(texto_arquivo) for z in y)
+            gerador = chain(*(procurarNoArquivo(regex, x) for x in gerador))
     else:
-        echo(procurar(regex, texto_arquivo).strip())
+        gerador = procurar(regex, texto_arquivo)
+    if gerador:
+        for linha in gerador:
+            echo(linha)
 
 
-def procurar(
-    regex: str, texto: Union[str, list]
-) -> Union[Generator, str, None]:
-    if isinstance(texto, list):
-        return (sub(regex, trocar, linha, flags=M)
-                for linha in texto if search(regex, linha, flags=M))
-    elif isinstance(texto, str):
+def procurar(regex: str, texto: Union[str, Generator]) -> Generator:
+    if isinstance(texto, str):
         if search(regex, texto, flags=M):
-            return sub(regex, trocar, texto, flags=M)
+            yield sub(regex, trocar, texto, flags=M)
+    else:
+        # não sei o porque não funciona.
+        # return (sub(regex, trocar, linha, flags=M)
+        #         for linha in texto if search(regex, linha, flags=M))
+        for linha in texto:
+            if search(regex, linha, flags=M):
+                yield sub(regex, trocar, linha, flags=M)
 
 
-def procurarNoArquivo(
-    regex: str, texto_arquivo: str
-) -> Tuple[str, Union[Generator, str, None]]:
+def procurarNoArquivo(regex: str, texto_arquivo: str) -> Generator:
     with open(texto_arquivo) as arquivo:
-        return procurar(regex, arquivo.readlines())
+        return procurar(regex, (x for x in arquivo.readlines()))
 
 
 def trocar(objeto_match) -> str:
@@ -93,10 +91,4 @@ if __name__ == '__main__':
 # TODO: colocar o nome do arquivo na frente.
 # TODO: adicionar uma opção caso a pessoa queira somente o nome do arquivo.
 
-# 'verde'
-# 'vermelho'
-# 'azul'
-# 'amarelo'
-# 'laranja'
-# 'roxo'
-# 'rosa'
+# TODO: colorir o texto de cor diferente caso o regex seja feito somente com pipes
