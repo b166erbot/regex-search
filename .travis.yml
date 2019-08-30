@@ -7,4 +7,4 @@ install:
   - pipenv install
 
 script:
-  - pipenv run coverage run --source=regex_source -m unittest discover -s tests/
+  - pipenv run coverage run --source=b166erobot/regex-search/regex_source -m unittest discover -s b166erobot/regex-search/tests/
