@@ -11,6 +11,19 @@ from colored import attr, fg
 
 ajuda_opcao = ('Vasculha por todos os arquivos contidos'
                          ' dentro da [local/]pasta passada.')
+forma = '{}{{}}{}'
+cores = [
+    forma.format(fg('dark_orange'), attr(0)),
+    forma.format(fg('green'), attr(0)),
+    forma.format(fg('red'), attr(0)),
+    forma.format(fg('blue'), attr(0)),
+    forma.format(fg('yellow'), attr(0)),
+    forma.format(fg('purple_4a'), attr(0)),
+    forma.format(fg('cyan'), attr(0)),
+    forma.format(fg('magenta'), attr(0)),
+    forma.format(fg('deep_pink_1a'), attr(0)),
+    forma.format(fg('light_salmon_3b'), attr(0)),
+]
 
 
 @command()
@@ -22,6 +35,8 @@ def main(regex: str, texto_arquivo: str, recursivo: bool):
     Procure por padrões regex em um texto/arquivo.
 
     Usagem: regex_search [REGEX] [TEXTO | [LOCAL]ARQUIVO]
+
+    este programa só aceita arquivos gravados com unicode utf-8.
     """
 
     texto_arquivo = texto_arquivo.strip()
@@ -30,7 +45,8 @@ def main(regex: str, texto_arquivo: str, recursivo: bool):
             gerador = procurarNoArquivo(regex, texto_arquivo)
         elif recursivo and isdir(texto_arquivo):
             gerador = (join(w, z) for w, x, y in walk(texto_arquivo) for z in y)
-            gerador = chain(*(procurarNoArquivo(regex, x) for x in gerador))
+            gerador = (procurarNoArquivo(regex, x) for x in gerador)
+            gerador = chain(*(x for x in gerador if x))
     else:
         gerador = procurar(regex, texto_arquivo)
     if gerador:
@@ -43,52 +59,40 @@ def procurar(regex: str, texto: Union[str, Generator]) -> Generator:
         if search(regex, texto, flags=M):
             yield sub(regex, trocar, texto, flags=M)
     else:
-        # não sei o porque não funciona.
-        # return (sub(regex, trocar, linha, flags=M)
-        #         for linha in texto if search(regex, linha, flags=M))
         for linha in texto:
             if search(regex, linha, flags=M):
                 yield sub(regex, trocar, linha, flags=M)
 
 
-def procurarNoArquivo(regex: str, texto_arquivo: str) -> Generator:
-    with open(texto_arquivo) as arquivo:
-        return procurar(regex, (x for x in arquivo.readlines()))
+def procurarNoArquivo(regex: str, texto_arquivo: str) -> Union[Generator, None]:
+    try:
+        with open(texto_arquivo) as arquivo:
+            return procurar(regex, (x for x in arquivo.readlines()))
+    except UnicodeDecodeError:
+        pass
 
 
 def trocar(objeto_match) -> str:
-    ciclo = cycle(cores)
-    grupos = list(objeto_match.groups())  # or objeto_match.group()
+    grupos = list(objeto_match.groups())
     grupo = objeto_match.group()
     if any(grupos):
+        ciclo = cycle(cores)
         gerador = map(lambda x: (x, next(ciclo)), grupos)
         texto, forma = next(filter(lambda x: x[0], gerador))
         return forma.format(texto)
     elif grupo:
-        return next(ciclo).format(grupo)
+        return cores[0].format(grupo)
 
 
 if __name__ == '__main__':
-    forma = '{}{{}}{}'
-    cores = [
-        forma.format(fg('dark_orange'), attr(0)),
-        forma.format(fg('green'), attr(0)),
-        forma.format(fg('red'), attr(0)),
-        forma.format(fg('blue'), attr(0)),
-        forma.format(fg('yellow'), attr(0)),
-        forma.format(fg('purple_4a'), attr(0)),
-        forma.format(fg('cyan'), attr(0)),
-        forma.format(fg('magenta'), attr(0)),
-        forma.format(fg('deep_pink_1a'), attr(0)),
-        forma.format(fg('light_salmon_3b'), attr(0)),
-    ]
     main()
 
 
 # TODO: ler todos os arquivos na pasta recursivamente
 # TODO: cada grupo tenha uma cor diferente, caso as cores se esgotem, começe da
 # cor zero novamente.
-# TODO: colocar o nome do arquivo na frente.
+# TODO: colocar o nome do arquivo e linha na frente.
 # TODO: adicionar uma opção caso a pessoa queira somente o nome do arquivo.
 
 # TODO: colorir o texto de cor diferente caso o regex seja feito somente com pipes
+# ignorar esse todo acima?
