@@ -3,7 +3,7 @@ from itertools import chain, cycle, dropwhile
 from os import walk
 from os.path import exists, isdir, isfile, join
 from re import M, search, sub
-from typing import Generator, Tuple, Union
+from typing import Generator, Tuple, Union, Iterable
 
 from click import STRING, argument, command, echo, option
 from colored import attr, fg
@@ -35,17 +35,16 @@ def main(regex: str, texto_arquivo: str, recursivo: bool):
 
     Usagem: regex_search [REGEX] [TEXTO | [LOCAL]ARQUIVO]
 
-    este programa só aceita arquivos gravados com unicode utf-8.
+    obs: este programa só aceita arquivos gravados com unicode utf-8.
     """
 
     texto_arquivo = texto_arquivo.strip()
+    gerador = ''
     if len(texto_arquivo) <= 180 and exists(texto_arquivo):
         if isfile(texto_arquivo):
             gerador = procurarNoArquivo(regex, texto_arquivo)
         elif recursivo and isdir(texto_arquivo):
-            gerador = (join(w, z) for w, x, y in walk(texto_arquivo) for z in y)
-            gerador = (procurarNoArquivo(regex, x) for x in gerador)
-            gerador = chain(*(x for x in gerador if x))
+            gerador = vasculhar_pastas(regex, texto_arquivo)
     else:
         gerador = procurar(regex, texto_arquivo)
     if gerador:
@@ -53,22 +52,39 @@ def main(regex: str, texto_arquivo: str, recursivo: bool):
             echo(linha)
 
 
-def procurar(regex: str, texto: Union[str, Generator]) -> Generator:
-    if isinstance(texto, str):
-        if search(regex, texto, flags=M):
-            yield sub(regex, trocar, texto, flags=M)
+def procurar(regex: str, texto: str) -> Generator:
+    if search(regex, texto, flags=M):
+        yield sub(regex, trocar, texto, flags=M)
     else:
-        for linha in texto:
-            if search(regex, linha, flags=M):
-                yield sub(regex, trocar, linha, flags=M)
+        yield
 
 
-def procurarNoArquivo(regex: str, texto_arquivo: str) -> Union[Generator, None]:
+def procurarNoArquivo(regex: str, arquivo: str) -> Union[Generator, None]:
     try:
-        with open(texto_arquivo) as arquivo:
-            return procurar(regex, (x for x in arquivo.readlines()))
+        linha_str = cores[6]
+        with open(arquivo) as arquivo_:
+            for numero, texto in enumerate(arquivo_.readlines(), 1):
+                if search(regex, texto, flags=M):
+                    subs = sub(regex, trocar, texto, flags=M)
+                    yield f"{linha_str.format(f'linha {numero}')}: {subs}"
     except UnicodeDecodeError:
         pass
+
+
+def vasculhar_pastas(regex: str, pasta: str) -> Iterable:
+    gerador = (join(local, arquivo)
+               for local, x, arquivos in walk(pasta) for arquivo in arquivos)
+    forma = f"{cores[6].format('arquivo: ')}{{}}\n"
+    for arquivo in gerador:
+        resultado = procurarNoArquivo(regex, arquivo)
+        if resultado:
+            try:
+                item = next(resultado)
+                yield forma.format(arquivo)
+                yield item
+                yield from resultado
+            except StopIteration:
+                pass
 
 
 def trocar(objeto_match) -> str:

@@ -21,7 +21,7 @@
 ###### Todo:
   - [x] adicionar uma função para ler todos os arquivos das pastas recursivamente.
   - [x] cada grupo tenha uma cor diferente, caso as cores se esgotem, começe da cor zero novamente.
-  - [ ] colocar o nome do arquivo e número da linha na frente.
+  - [x] colocar o nome do arquivo e número da linha na frente.
   - [ ] adicionar uma opção caso a pessoa queira somente o nome do arquivo.
 
 ###### Versão do python:

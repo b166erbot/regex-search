@@ -1,5 +1,5 @@
 from itertools import cycle
-from types import GeneratorType
+from typing import Generator
 from unittest import TestCase
 
 from colored import attr, fg
@@ -10,19 +10,19 @@ from regex_search.regex_search import procurar
 class Testes(TestCase):
     def test_retornando_generator_caso_inserido_texto(self):
         resultado = procurar('a', 'a')
-        self.assertIsInstance(resultado, GeneratorType)
+        self.assertIsInstance(resultado, Generator)
 
     def test_retornando_generator_caso_inserido_generator(self):
         resultado = procurar('a', (x for x in 'aba'))
-        self.assertIsInstance(resultado, GeneratorType)
+        self.assertIsInstance(resultado, Generator)
 
     def test_retornando_toda_a_string_caso_regex_vazio(self):
         resultado = next(procurar('', 'oi'))
         self.assertEqual(resultado, 'oi')
 
-    def test_retornando_erro_caso_texto_vazio(self):
-        with self.assertRaises(StopIteration):
-            resultado = next(procurar('oi', ''))
+    def test_nao_retornando_erro_caso_texto_vazio(self):
+        resultado = next(procurar('oi', ''))
+        self.assertIs(resultado, None)
 
     def test_retornando_toda_a_string_caso_texto_e_regex_estiverem_vazios(self):
         resultado = next(procurar('', ''))
