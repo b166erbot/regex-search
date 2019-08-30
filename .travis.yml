@@ -1,7 +1,7 @@
 language: python
 os: osx
 python:
-  - '3.7.3'
+  - '3.7'
 install:
   - pip install pipenv
   - pipenv install
