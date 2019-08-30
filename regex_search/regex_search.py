@@ -84,12 +84,9 @@ def trocar(objeto_match) -> str:
 
 
 if __name__ == '__main__':
-    main()
+    main()  # noqa
 
 
-# TODO: ler todos os arquivos na pasta recursivamente
-# TODO: cada grupo tenha uma cor diferente, caso as cores se esgotem, começe da
-# cor zero novamente.
 # TODO: colocar o nome do arquivo e linha na frente.
 # TODO: adicionar uma opção caso a pessoa queira somente o nome do arquivo.
 
