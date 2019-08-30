@@ -1,5 +1,7 @@
 from unittest import TestCase
+
 from click.testing import CliRunner
+
 from regex_search.regex_search import main
 
 

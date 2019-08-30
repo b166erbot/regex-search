@@ -1,7 +1,8 @@
-from unittest import TestCase
-from unittest.mock import patch, MagicMock
-from regex_search.regex_search import procurarNoArquivo
 from types import GeneratorType
+from unittest import TestCase
+from unittest.mock import MagicMock, patch
+
+from regex_search.regex_search import procurarNoArquivo
 
 
 class Testes(TestCase):

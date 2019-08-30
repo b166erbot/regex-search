@@ -1,13 +1,12 @@
-from os.path import isdir, isfile, exists, join
-from os import walk
-from re import M, search, sub
-from typing import Union, Generator, Tuple
 # from types import GeneratorType as Gen
-from itertools import cycle, dropwhile, chain
+from itertools import chain, cycle, dropwhile
+from os import walk
+from os.path import exists, isdir, isfile, join
+from re import M, search, sub
+from typing import Generator, Tuple, Union
 
-from click import STRING, argument, command, option, echo
+from click import STRING, argument, command, echo, option
 from colored import attr, fg
-
 
 ajuda_opcao = ('Vasculha por todos os arquivos contidos'
                          ' dentro da [local/]pasta passada.')

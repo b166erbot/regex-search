@@ -1,8 +1,10 @@
-from unittest import TestCase
-from regex_search.regex_search import procurar
-from types import GeneratorType
-from colored import fg, attr
 from itertools import cycle
+from types import GeneratorType
+from unittest import TestCase
+
+from colored import attr, fg
+
+from regex_search.regex_search import procurar
 
 
 class Testes(TestCase):
