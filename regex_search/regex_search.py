@@ -64,11 +64,8 @@ def procurarNoArquivo(regex: str, arquivo: str, so_nomes: bool) -> Generator:
         with open(arquivo) as arquivo_:
             for numero, texto in enumerate(arquivo_.readlines(), 1):
                 if search(regex, texto, flags=M):
-                    if so_nomes:
-                        yield arquivo
-                    else:
-                        subs = sub(regex, trocar, texto, flags=M)
-                        yield f"{linha_str.format(f'linha {numero}')}: {subs}"
+                    subs = sub(regex, trocar, texto, flags=M)
+                    yield f"{linha_str.format(f'linha {numero}')}: {subs}"
     except UnicodeDecodeError:
         pass
 
@@ -82,8 +79,9 @@ def vasculhar_pastas(regex: str, pasta: str, so_nomes: bool) -> Generator:
             try:
                 item = next(resultado)
                 yield forma.format(arquivo)
-                yield item
-                yield from resultado
+                if not so_nomes:
+                    yield item
+                    yield from resultado
             except StopIteration:
                 pass
 

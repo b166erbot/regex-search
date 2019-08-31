@@ -28,8 +28,10 @@ class Testes(TestCase):
         self.assertIn(esperado, resultado.output)
 
     def test_procurando_esse_modulo_com_flags_recursivo_e_so_nomes(self):
+        esperado = ('    def test_procurando_esse_modulo_com_flags_recursivo_'
+                    'e_so_nomes(self):')
         resultado = self.runner.invoke(main, ['-rs', 'recursivo', self.arquivo])
-        self.assertIn(self.arquivo, resultado.output)
+        self.assertIn(esperado, resultado.output)
 
     def test_procurando_esse_metodo_com_flag_so_nomes(self):
         resultado = self.runner.invoke(main, ['-s', 'recursivo', self.arquivo])
