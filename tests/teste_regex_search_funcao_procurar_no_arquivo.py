@@ -1,6 +1,6 @@
+from typing import Generator
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
-from typing import Generator
 
 from regex_search.regex_search import procurarNoArquivo
 
@@ -8,12 +8,13 @@ from regex_search.regex_search import procurarNoArquivo
 class Testes(TestCase):
     def setUp(self):
         self.args = [r'teste_retornando_esse_metodo',
-                     'tests/teste_regex_search_funcao_procurar_no_arquivo.py']
-        self.mocks = [MagicMock(), MagicMock()]
+                     'tests/teste_regex_search_funcao_procurar_no_arquivo.py',
+                     False]
+        self.mocks = [MagicMock(), MagicMock(), False]
 
     def test_retornando_esse_metodo(self):
         regex = 'test_retornando_esse_metodo'
-        resultado = next(procurarNoArquivo(regex, self.args[1]))
+        resultado = next(procurarNoArquivo(regex, *self.args[1:]))
         esperado = ('    def \x1b[38;5;208mtest_retornando_esse_metodo\x1b['
                     '0m(self):\n')
         self.assertIn(esperado, resultado)

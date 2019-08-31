@@ -1,7 +1,8 @@
+from typing import Generator
 from unittest import TestCase
 from unittest.mock import MagicMock
+
 from regex_search.regex_search import juntar_nomes_de_arquivos
-from typing import Generator
 
 
 class Testes(TestCase):

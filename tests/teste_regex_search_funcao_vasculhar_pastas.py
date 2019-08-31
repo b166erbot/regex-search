@@ -1,12 +1,13 @@
-from unittest import TestCase
-from unittest.mock import patch, MagicMock
-from regex_search.regex_search import vasculhar_pastas
 from typing import Generator
+from unittest import TestCase
+from unittest.mock import MagicMock, patch
+
+from regex_search.regex_search import vasculhar_pastas
 
 
 class Testes(TestCase):
     def setUp(self):
-        self.args = ('def|class', 'tests')
+        self.args = ('def|class', 'tests', False)
 
     def test_retornando_um_gerador(self):
         resultado = vasculhar_pastas(*self.args)

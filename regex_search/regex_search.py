@@ -10,6 +10,7 @@ from colored import attr, fg
 
 ajuda_opcao = ('Vasculha por todos os arquivos contidos'
                          ' dentro da [local/]pasta passada.')
+ajuda_opcao2 = ('Mostra somente os nomes dos arquivos')
 forma = '{}{{}}{}'
 cores = [
     forma.format(fg('dark_orange'), attr(0)),
@@ -29,7 +30,8 @@ cores = [
 @argument('regex', type=STRING)
 @argument('texto_arquivo', type=STRING)
 @option('-r', '--recursivo', default=False, is_flag=True, help=ajuda_opcao)
-def main(regex: str, texto_arquivo: str, recursivo: bool):
+@option('-s', '--so_nomes', default=False, is_flag=True, help=ajuda_opcao2)
+def main(regex: str, texto_arquivo: str, recursivo: bool, so_nomes: bool):
     """
     Procure por padrões regex em um texto/arquivo.
 
@@ -40,9 +42,9 @@ def main(regex: str, texto_arquivo: str, recursivo: bool):
 
     texto_arquivo = texto_arquivo.strip()
     if all((recursivo, isdir(texto_arquivo))):
-        gerador = vasculhar_pastas(regex, texto_arquivo)
+        gerador = vasculhar_pastas(regex, texto_arquivo, so_nomes)
     elif len(texto_arquivo) <= 180 and isfile(texto_arquivo):
-        gerador = procurarNoArquivo(regex, texto_arquivo)
+        gerador = procurarNoArquivo(regex, texto_arquivo, so_nomes)
     else:
         gerador = procurar(regex, texto_arquivo)
     for linha in gerador:
@@ -56,23 +58,26 @@ def procurar(regex: str, texto: str) -> Generator:
         yield
 
 
-def procurarNoArquivo(regex: str, arquivo: str) -> Generator:
+def procurarNoArquivo(regex: str, arquivo: str, so_nomes: bool) -> Generator:
+    linha_str = cores[6]
     try:
-        linha_str = cores[6]
         with open(arquivo) as arquivo_:
             for numero, texto in enumerate(arquivo_.readlines(), 1):
                 if search(regex, texto, flags=M):
-                    subs = sub(regex, trocar, texto, flags=M)
-                    yield f"{linha_str.format(f'linha {numero}')}: {subs}"
+                    if so_nomes:
+                        yield arquivo
+                    else:
+                        subs = sub(regex, trocar, texto, flags=M)
+                        yield f"{linha_str.format(f'linha {numero}')}: {subs}"
     except UnicodeDecodeError:
         pass
 
 
-def vasculhar_pastas(regex: str, pasta: str) -> Generator:
+def vasculhar_pastas(regex: str, pasta: str, so_nomes: bool) -> Generator:
     gerador = juntar_nomes_de_arquivos(pasta)
     forma = f"{cores[6].format('arquivo: ')}{{}}\n"
     for arquivo in gerador:
-        resultado = procurarNoArquivo(regex, arquivo)
+        resultado = procurarNoArquivo(regex, arquivo, so_nomes)
         if resultado:
             try:
                 item = next(resultado)
