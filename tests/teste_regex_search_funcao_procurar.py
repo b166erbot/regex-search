@@ -12,15 +12,11 @@ class Testes(TestCase):
         resultado = procurar('a', 'a')
         self.assertIsInstance(resultado, Generator)
 
-    def test_retornando_generator_caso_inserido_generator(self):
-        resultado = procurar('a', (x for x in 'aba'))
-        self.assertIsInstance(resultado, Generator)
-
     def test_retornando_toda_a_string_caso_regex_vazio(self):
         resultado = next(procurar('', 'oi'))
         self.assertEqual(resultado, 'oi')
 
-    def test_nao_retornando_erro_caso_texto_vazio(self):
+    def test_retornando_none_caso_texto_vazio(self):
         resultado = next(procurar('oi', ''))
         self.assertIs(resultado, None)
 
@@ -29,9 +25,8 @@ class Testes(TestCase):
         self.assertEqual(resultado, '')
 
     def test_retornando_texto_laranja_caso_usando_pipe_no_regex(self):
-        resultado = next(procurar('oi|ola', 'oiteste testeola oi'))
-        esperado = ('\x1b[38;5;208moi\x1b[0mteste teste\x1b[38;5;208mola\x1b[0m'
-                    ' \x1b[38;5;208moi\x1b[0m')
+        resultado = next(procurar('oi', 'teste testeoiola '))
+        esperado = 'teste teste\x1b[38;5;208moi\x1b[0mola '
         self.assertEqual(resultado, esperado)
 
     def test_retornando_as_10_cores_caso_usando_grupos(self):

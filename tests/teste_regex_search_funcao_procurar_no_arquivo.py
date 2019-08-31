@@ -7,7 +7,7 @@ from regex_search.regex_search import procurarNoArquivo
 
 class Testes(TestCase):
     def setUp(self):
-        self.args = [r'teste_retornando',
+        self.args = [r'teste_retornando_esse_metodo',
                      'tests/teste_regex_search_funcao_procurar_no_arquivo.py']
         self.mocks = [MagicMock(), MagicMock()]
 
@@ -18,12 +18,18 @@ class Testes(TestCase):
                     '0m(self):\n')
         self.assertIn(esperado, resultado)
 
-    @patch('regex_search.regex_search.open')
-    def test_erro_ao_abrir_arquivo_com_unicode_decode_error(self, open):
-        open.side_effect = UnicodeDecodeError('', b'', 1, 2, '')
-        resultado = procurarNoArquivo(*self.mocks)
+    @patch('regex_search.regex_search.search', return_value = True)
+    def test_retornando_um_generator_caso_search_retorne_algo(self, _):
+        resultado = procurarNoArquivo(*self.args)
         self.assertIsInstance(resultado, Generator)
 
-    def test_retornando_um_generator(self, ):
+    @patch('regex_search.regex_search.search', return_value = False)
+    def test_retornando_um_generator_caso_search_nao_retorne_algo(self, _):
+        resultado = procurarNoArquivo(*self.args)
+        self.assertIsInstance(resultado, Generator)
+
+    @patch('regex_search.regex_search.open')
+    def test_raise_um_UnicodeDecodeError_e_retornando_generator(self, open):
+        open.side_effect = UnicodeDecodeError('', b'', 1, 2, '')
         resultado = procurarNoArquivo(*self.args)
         self.assertIsInstance(resultado, Generator)

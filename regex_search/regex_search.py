@@ -3,7 +3,7 @@ from itertools import chain, cycle, dropwhile
 from os import walk
 from os.path import exists, isdir, isfile, join
 from re import M, search, sub
-from typing import Generator, Tuple, Union, Iterable
+from typing import Generator, Tuple, Union
 
 from click import STRING, argument, command, echo, option
 from colored import attr, fg
@@ -39,17 +39,14 @@ def main(regex: str, texto_arquivo: str, recursivo: bool):
     """
 
     texto_arquivo = texto_arquivo.strip()
-    gerador = ''
-    if len(texto_arquivo) <= 180 and exists(texto_arquivo):
-        if isfile(texto_arquivo):
-            gerador = procurarNoArquivo(regex, texto_arquivo)
-        elif recursivo and isdir(texto_arquivo):
-            gerador = vasculhar_pastas(regex, texto_arquivo)
+    if all((recursivo, isdir(texto_arquivo))):
+        gerador = vasculhar_pastas(regex, texto_arquivo)
+    elif len(texto_arquivo) <= 180 and isfile(texto_arquivo):
+        gerador = procurarNoArquivo(regex, texto_arquivo)
     else:
         gerador = procurar(regex, texto_arquivo)
-    if gerador:
-        for linha in gerador:
-            echo(linha)
+    for linha in gerador:
+        echo(linha)
 
 
 def procurar(regex: str, texto: str) -> Generator:
@@ -59,7 +56,7 @@ def procurar(regex: str, texto: str) -> Generator:
         yield
 
 
-def procurarNoArquivo(regex: str, arquivo: str) -> Union[Generator, None]:
+def procurarNoArquivo(regex: str, arquivo: str) -> Generator:
     try:
         linha_str = cores[6]
         with open(arquivo) as arquivo_:
@@ -71,9 +68,8 @@ def procurarNoArquivo(regex: str, arquivo: str) -> Union[Generator, None]:
         pass
 
 
-def vasculhar_pastas(regex: str, pasta: str) -> Iterable:
-    gerador = (join(local, arquivo)
-               for local, x, arquivos in walk(pasta) for arquivo in arquivos)
+def vasculhar_pastas(regex: str, pasta: str) -> Generator:
+    gerador = juntar_nomes_de_arquivos(pasta)
     forma = f"{cores[6].format('arquivo: ')}{{}}\n"
     for arquivo in gerador:
         resultado = procurarNoArquivo(regex, arquivo)
@@ -85,6 +81,11 @@ def vasculhar_pastas(regex: str, pasta: str) -> Iterable:
                 yield from resultado
             except StopIteration:
                 pass
+
+
+def juntar_nomes_de_arquivos(pasta) -> Generator:
+    return (join(local, arquivo)
+            for local, x, arquivos in walk(pasta) for arquivo in arquivos)
 
 
 def trocar(objeto_match) -> str:
@@ -100,7 +101,7 @@ def trocar(objeto_match) -> str:
 
 
 if __name__ == '__main__':
-    main()  # noqa
+    main()
 
 
 # TODO: colocar o nome do arquivo e linha na frente.
