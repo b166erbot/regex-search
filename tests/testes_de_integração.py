@@ -6,11 +6,11 @@ from regex_search.regex_search import main
 
 
 class Testes(TestCase):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.runner = CliRunner()
-        self.maxDiff = None
-        self.arquivo = 'tests/testes_de_integração.py'
+    @classmethod
+    def setUpClass(cls):
+        cls.runner = CliRunner()
+        cls.maxDiff = None
+        cls.arquivo = 'tests/testes_de_integração.py'
 
     def test_texto_com_pipe(self):
         resultado = self.runner.invoke(main, ['oi|ola', 'oiolaoi'])

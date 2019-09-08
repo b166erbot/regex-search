@@ -105,10 +105,3 @@ def trocar(objeto_match) -> str:
 
 if __name__ == '__main__':
     main()
-
-
-# TODO: colocar o nome do arquivo e linha na frente.
-# TODO: adicionar uma opção caso a pessoa queira somente o nome do arquivo.
-
-# TODO: colorir o texto de cor diferente caso o regex seja feito somente com pipes
-# ignorar esse todo acima?
