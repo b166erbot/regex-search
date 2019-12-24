@@ -19,12 +19,12 @@ class Testes(TestCase):
         next(resultado)
         self.assertIn(esperado, next(resultado))
 
-    @patch('regex_search.regex_search.procurarNoArquivo', return_value=False)
+    @patch('regex_search.regex_search.procurar_no_arquivo', return_value=False)
     def test_retornando_um_generator_caso_resultado_seja_false(self, _):
         resultado = vasculhar_pastas(*self.args)
         self.assertIsInstance(resultado, Generator)
 
-    @patch('regex_search.regex_search.procurarNoArquivo')
+    @patch('regex_search.regex_search.procurar_no_arquivo')
     def test_raise_StopIteration_retornando_generator(self, proc):
         proc.return_value = MagicMock(side_effect = StopIteration())
         resultado = vasculhar_pastas(*self.args)

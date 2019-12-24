@@ -1,16 +1,16 @@
 # from types import GeneratorType as Gen
-from itertools import chain, cycle, dropwhile
+from itertools import cycle
 from os import walk
-from os.path import exists, isdir, isfile, join
+from os.path import join
 from re import M, search, sub
-from typing import Generator, Tuple, Union
+from typing import Generator
 
-from click import STRING, argument, command, echo, option
+import click
 from colored import attr, fg
 
-ajuda_opcao = ('Vasculha por todos os arquivos contidos'
-                         ' dentro da [local/]pasta passada.')
-ajuda_opcao2 = ('Mostra somente os nomes dos arquivos')
+ajuda = ('Vasculha por todos os arquivos contidos'
+         ' dentro da [caminho/]pasta passada.')
+ajuda2 = 'Mostra somente os nomes dos arquivos'
 forma = '{}{{}}{}'
 cores = [
     forma.format(fg('dark_orange'), attr(0)),
@@ -26,39 +26,40 @@ cores = [
 ]
 
 
-@command()
-@argument('regex', type=STRING)
-@argument('texto_arquivo', type=STRING)
-@option('-r', '--recursivo', default=False, is_flag=True, help=ajuda_opcao)
-@option('-s', '--so_nomes', default=False, is_flag=True, help=ajuda_opcao2)
-def main(regex: str, texto_arquivo: str, recursivo: bool, so_nomes: bool):
+@click.command()
+@click.argument('regex', type=click.STRING)
+@click.option('-t', '--texto', 'texto', type=click.STRING)
+@click.option('-a', '--arquivo', 'arquivo', type=click.STRING)
+@click.option('-r', '--recursivo', default=False, is_flag=True, help=ajuda)
+@click.option('-s', '--so_nomes', default=False, is_flag=True, help=ajuda2)
+def main(regex: str, texto: str, arquivo: open, recursivo: bool, so_nomes: bool):
     """
     Procure por padrões regex em um texto/arquivo.
 
-    Usagem: regex_search [REGEX] [TEXTO | [LOCAL]ARQUIVO]
+    Usagem: regex_search REGEX [TEXTO | [LOCAL]ARQUIVO]
 
     obs: este programa só aceita arquivos gravados com unicode utf-8.
     """
 
-    texto_arquivo = texto_arquivo.strip()
-    if all((recursivo, isdir(texto_arquivo))):
-        gerador = vasculhar_pastas(regex, texto_arquivo, so_nomes)
-    elif len(texto_arquivo) <= 180 and isfile(texto_arquivo):
-        gerador = procurarNoArquivo(regex, texto_arquivo, so_nomes)
+    if recursivo:
+        gerador = vasculhar_pastas(regex, '.', so_nomes)
+    elif arquivo:
+        gerador = procurar_no_arquivo(regex, arquivo)
+    elif texto:
+        texto = texto.strip()
+        gerador = procurar(regex, texto)
     else:
-        gerador = procurar(regex, texto_arquivo)
+        raise click.UsageError('Use ao menos uma opção [-t, -a, -r].')
     for linha in gerador:
-        echo(linha)
+        click.echo(linha)
 
 
 def procurar(regex: str, texto: str) -> Generator:
-    if search(regex, texto, flags=M):
+    if texto and search(regex, texto, flags=M):
         yield sub(regex, trocar, texto, flags=M)
-    else:
-        yield
 
 
-def procurarNoArquivo(regex: str, arquivo: str, so_nomes: bool) -> Generator:
+def procurar_no_arquivo(regex: str, arquivo: open) -> Generator:
     linha_str = cores[6]
     try:
         with open(arquivo) as arquivo_:
@@ -74,21 +75,19 @@ def vasculhar_pastas(regex: str, pasta: str, so_nomes: bool) -> Generator:
     gerador = juntar_nomes_de_arquivos(pasta)
     forma = f"{cores[6].format('arquivo: ')}{{}}\n"
     for arquivo in gerador:
-        resultado = procurarNoArquivo(regex, arquivo, so_nomes)
-        if resultado:
-            try:
-                item = next(resultado)
-                yield forma.format(arquivo)
-                if not so_nomes:
-                    yield item
-                    yield from resultado
-            except StopIteration:
-                pass
+        resultado = procurar_no_arquivo(regex, arquivo)
+        item = next(resultado, None)
+        if item:
+            yield forma.format(arquivo)
+            if not so_nomes:
+                yield item
+                yield from resultado
 
 
 def juntar_nomes_de_arquivos(pasta) -> Generator:
-    return (join(local, arquivo)
-            for local, x, arquivos in walk(pasta) for arquivo in arquivos)
+    for local, x, arquivos in walk(pasta):
+        for arquivo in arquivos:
+            yield join(local, arquivo)
 
 
 def trocar(objeto_match) -> str:

@@ -1,6 +1,6 @@
 from itertools import cycle
 from typing import Generator
-from unittest import TestCase
+from unittest import TestCase, skip
 
 from colored import attr, fg
 
@@ -17,12 +17,12 @@ class Testes(TestCase):
         self.assertEqual(resultado, 'oi')
 
     def test_retornando_none_caso_texto_vazio(self):
-        resultado = next(procurar('oi', ''))
+        resultado = next(procurar('oi', ''), None)
         self.assertIs(resultado, None)
 
-    def test_retornando_toda_a_string_caso_texto_e_regex_estiverem_vazios(self):
-        resultado = next(procurar('', ''))
-        self.assertEqual(resultado, '')
+    def test_retornando_None_caso_texto_e_regex_estiverem_vazios(self):
+        resultado = next(procurar('', ''), None)
+        self.assertEqual(resultado, None)
 
     def test_retornando_texto_laranja_caso_usando_pipe_no_regex(self):
         resultado = next(procurar('oi', 'teste testeoiola '))

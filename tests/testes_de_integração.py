@@ -13,24 +13,23 @@ class Testes(TestCase):
         cls.arquivo = 'tests/testes_de_integração.py'
 
     def test_texto_com_pipe(self):
-        resultado = self.runner.invoke(main, ['oi|ola', 'oiolaoi'])
+        resultado = self.runner.invoke(main, ['oi|ola', '-t', 'oiolaoi'])
         self.assertEqual('oiolaoi\n', resultado.output)
 
     def test_procurando_esse_metodo_com_flag_recursivo(self):
         esperado = '    def test_recursivo_procurando_esse_metodo(self):'
-        resultado = self.runner.invoke(main, ['-r', 'recursivo', '.'])
+        resultado = self.runner.invoke(main, ['recursivo', '-r'])
         self.assertIn(esperado, resultado.output)
 
     def test_procurando_esse_metodo_sem_flag_recursivo(self):
-        esperado = ('    def test_procurando_esse_metodo_sem_flag_recursivo'
+        esperado = ('def test_procurando_esse_metodo_sem_flag_recursivo'
                     '(self):')
-        resultado = self.runner.invoke(main, ['recursivo', self.arquivo])
+        resultado = self.runner.invoke(main, ['recursivo', '-a', self.arquivo])
         self.assertIn(esperado, resultado.output)
 
     def test_procurando_esse_modulo_com_flags_recursivo_e_so_nomes(self):
-        esperado = ('    def test_procurando_esse_modulo_com_flags_recursivo_'
-                    'e_so_nomes(self):')
-        resultado = self.runner.invoke(main, ['-rs', 'recursivo', self.arquivo])
+        esperado = ('arquivo: ./tests/testes_de_integração.py')
+        resultado = self.runner.invoke(main, ['recursivo', '-rs'])
         self.assertIn(esperado, resultado.output)
 
     def test_procurando_esse_metodo_com_flag_so_nomes(self):

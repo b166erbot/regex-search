@@ -16,5 +16,10 @@ class Testes(TestCase):
 
     def test_retornando_os_arquivos_dentro_da_pasta_regex_search(self):
         resultado = tuple(juntar_nomes_de_arquivos('regex_search'))
-        esperado = ('regex_search/__init__.py', 'regex_search/regex_search.py')
+        esperado = (
+            'regex_search/__init__.py',
+            'regex_search/regex_search.py',
+            'regex_search/__pycache__/__init__.cpython-37.pyc',
+            'regex_search/__pycache__/regex_search.cpython-37.pyc'
+        )
         self.assertEqual(resultado, esperado)
