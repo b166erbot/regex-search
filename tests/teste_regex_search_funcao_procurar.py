@@ -1,6 +1,6 @@
 from itertools import cycle
 from typing import Generator
-from unittest import TestCase, skip
+from unittest import TestCase
 
 from colored import attr, fg
 
