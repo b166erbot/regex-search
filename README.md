@@ -10,7 +10,7 @@
 ###### Usagem:
 
   * $ regex_search.py --help
-      * regex_search.py [expressão regular] [texto/[local]arquivo]
+      * regex_search.py [expressão regular] [opção(ões)] [texto/[local]arquivo]
   * $ regex_search.py 'expressão com espaços' -a 'arquivo com espaços.txt'
       * irá procurar pela expressão dentro do arquivo
   * $ regex_search.py '(oi)|(ola)' -r
